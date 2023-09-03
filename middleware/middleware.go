@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"photoapi.com/ppapi/helpers"
+	"task-5-pbi-btpns-RoniRagilImanKhoirul/helpers"
 )
 
 // Require_Auth adalah middleware yang memeriksa keberadaan dan kevalidan token otentikasi JWT pada permintaan.
