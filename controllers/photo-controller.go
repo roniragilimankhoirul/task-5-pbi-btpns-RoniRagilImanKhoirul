@@ -29,6 +29,15 @@ func Create_photo(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Failed to add item"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"photo": photo})
+	c.JSON(http.StatusOK, gin.H{"data": photo})
 
+}
+
+
+func Show_photo(c *gin.Context) {
+	var photos []models.Photo
+	userid, _ := c.Get("userid")
+
+	database.DB.Where("userid = ?", userid).Find(&photos)
+	c.JSON(http.StatusOK, gin.H{"data": photos})
 }
