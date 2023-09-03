@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	database "task-5-pbi-btpns-RoniRagilImanKhoirul/database"
 	controllers "task-5-pbi-btpns-RoniRagilImanKhoirul/controllers"
-	// middleware "task-5-pbi-btpns-RoniRagilImanKhoirul/middleware"
+	middleware "task-5-pbi-btpns-RoniRagilImanKhoirul/middleware"
 )
 
 func main() {
@@ -18,6 +18,9 @@ func main() {
 	})
 
 	r.POST("/users/register", controllers.Register_user)
+	r.POST("/users/login", controllers.Login_user)
+	r.PUT("/users/:userId", middleware.Require_Auth, controllers.Update_user)
+
 
 	r.Run()
 }
