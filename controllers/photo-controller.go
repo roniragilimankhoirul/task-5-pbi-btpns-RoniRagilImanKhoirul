@@ -70,3 +70,21 @@ func Update_photo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "data has been updated", "data": photo})
 }
+
+
+func Delete_photo(c *gin.Context) {
+	var photo models.Photo
+	photo.Id = c.Param("photoId")
+	userid, _ := c.Get("userid")
+	photo.Userid = userid.(string)
+
+	if err := helpers.Validation(c, photo); err != nil {
+		return
+	}
+	if err := database.DB.Where("userid = ?", photo.Userid).First(&photo).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "record not found"})
+		return
+	}
+	database.DB.Where("userid = ?", photo.Userid).Delete(&photo)
+	c.JSON(http.StatusOK, gin.H{"data": "Deleted successfully"})
+}

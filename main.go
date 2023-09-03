@@ -38,6 +38,7 @@ func main() {
 	r.POST("/photos", middleware.Require_Auth, controllers.Create_photo)
 	r.GET("/photos", middleware.Require_Auth, controllers.Show_photo)
 	r.PUT("/photos/:photoId", middleware.Require_Auth, controllers.Update_photo)
+	r.DELETE("/photos/:photoId", middleware.Require_Auth, controllers.Delete_photo)
 
 
 	// Menjalankan server web
