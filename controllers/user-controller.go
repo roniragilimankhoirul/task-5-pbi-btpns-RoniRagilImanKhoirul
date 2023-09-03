@@ -177,4 +177,33 @@ func Update_user(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func Delete_user(c *gin.Context) {
+	var user models.User
+	var photo models.Photo
+	var deletedPhotos bool
+	userid := c.Param("userId")
+
+	if err := database.DB.Where("userid = ?", userid).First(&photo).Error; err == nil {
+		database.DB.Delete(&models.Photo{}, "userid = ?", userid)
+
+		deletedPhotos = !deletedPhotos
+	}
+	if err := database.DB.Where("id = ?", userid).First(&user).Error; err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "record not found"})
+		return
+	}
+	database.DB.Where("id = ?", userid).Delete(&user)
+
+	if deletedPhotos {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "successfully deleted photos and account",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "successfully deleted",
+	})
+
+}
+
 

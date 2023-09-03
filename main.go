@@ -20,6 +20,8 @@ func main() {
 	r.POST("/users/register", controllers.Register_user)
 	r.POST("/users/login", controllers.Login_user)
 	r.PUT("/users/:userId", middleware.Require_Auth, controllers.Update_user)
+	r.DELETE("/users/:userId", middleware.Require_Auth, controllers.Delete_user)
+
 
 
 	r.Run()
