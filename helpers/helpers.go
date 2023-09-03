@@ -11,7 +11,7 @@ import (
 )
 
 // SECRET adalah kunci rahasia yang digunakan untuk penandatanganan token JWT.
-var SECRET = "LKAJLKDFJLJalkjdlfajslkdfj123130124"
+var SECRET = "roniragilimankhoirul"
 
 // Validation adalah fungsi untuk memvalidasi data menggunakan govalidator.
 // Ini mengembalikan error jika validasi gagal.
