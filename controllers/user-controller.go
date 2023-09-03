@@ -13,7 +13,7 @@ import (
 )
 
 type ResponseData struct {
-	Message string `json:"message"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
 
@@ -25,16 +25,18 @@ func Register_user(c *gin.Context) {
 		return
 	}
 
-	//validation
+	// Validasi data yang diterima
 	if err := helpers.Validation(c, user_reg); err != nil {
 		return
 	}
-	//hash password
+
+	// Enkripsi kata sandi
 	hashedPass := helpers.Encrypt_password(c, user_reg.Password)
 	if hashedPass == "" {
 		return
 	}
 
+	// Membuat objek pengguna baru
 	user := models.User{
 		Id:        user_reg.Id,
 		Username:  user_reg.Username,
@@ -44,13 +46,15 @@ func Register_user(c *gin.Context) {
 		UpdatedAt: time.Now(),
 	}
 
+	// Membuat pengguna baru di database
 	if result := database.DB.Create(&user); result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user. please change the email or the password",
 		})
 		return
 	}
-	// Create the response struct with "message" and "data" fields
+
+	// Menyiapkan respons dengan "message" dan "data" fields
 	response := ResponseData{
 		Message: "Successfully registered",
 		Data: gin.H{
@@ -60,30 +64,29 @@ func Register_user(c *gin.Context) {
 		},
 	}
 
-	// Return the structured response
+	// Mengembalikan respons yang telah disiapkan
 	c.JSON(http.StatusOK, response)
-
 }
-
 
 func Login_user(c *gin.Context) {
 	var user_login app.AuthLogin
 	var user models.User
 
-	// Bind user_login to context
+	// Mengaitkan data login dengan konteks
 	if err := c.ShouldBindJSON(&user_login); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Validation
+	// Validasi data yang diterima
 	if err := helpers.Validation(c, user_login); err != nil {
 		return
 	}
 
+	// Mencari pengguna berdasarkan alamat email
 	database.DB.First(&user, "email = ?", user_login.Email)
 
-	// Check for invalid email and password
+	// Memeriksa alamat email dan kata sandi yang tidak valid
 	if user.Id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid email or password",
@@ -91,7 +94,7 @@ func Login_user(c *gin.Context) {
 		return
 	}
 
-	// Check password
+	// Memeriksa kata sandi
 	if err := helpers.Check_password(user.Password, user_login.Password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid email or password",
@@ -99,7 +102,7 @@ func Login_user(c *gin.Context) {
 		return
 	}
 
-	// Generate a token
+	// Membuat token
 	tokenStr, err := helpers.Initialize_token(user.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -108,23 +111,23 @@ func Login_user(c *gin.Context) {
 		return
 	}
 
-	// Set token and user data in the response
+	// Menyiapkan respons dengan token dan data pengguna
 	response := ResponseData{
 		Message: "Successfully login",
 		Data: gin.H{
 			"id":       user.Id,
 			"username": user.Username,
 			"email":    user.Email,
-			"token": tokenStr,
+			"token":    tokenStr,
 		},
 	}
 
-	// Set token as a cookie
-	expTime := 86400 // seconds
+	// Set token sebagai cookie
+	expTime := 86400 // detik (1 hari)
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenStr, expTime, "", "", false, true)
 
-	// Return the structured response
+	// Mengembalikan respons yang telah disiapkan
 	c.JSON(http.StatusOK, response)
 }
 
@@ -146,9 +149,13 @@ func Update_user(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Validasi data yang diterima
 	if err := helpers.Validation(c, input_user); err != nil {
 		return
 	}
+
+	// Enkripsi kata sandi jika ada
 	if input_user.Password != "" {
 		hashedPass := helpers.Encrypt_password(c, input_user.Password)
 		if hashedPass == "" {
@@ -156,14 +163,17 @@ func Update_user(c *gin.Context) {
 		}
 		input_user.Password = hashedPass
 	}
+
+	// Memperbarui data pengguna di database
 	if database.DB.Model(&user).Where("id = ?", input_user.Id).Updates(&input_user).RowsAffected == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Failed to update. Please change the email or the password.",
-			"data":    nil, // You can set data to nil if the update fails.
+			"data":    nil, // Anda dapat mengatur data ke nil jika pembaruan gagal.
 		})
 		return
 	}
-	// Create the response struct with "message" and "data" fields
+
+	// Menyiapkan respons dengan "message" dan "data" fields
 	response := ResponseData{
 		Message: "Successfully updated",
 		Data: gin.H{
@@ -173,7 +183,7 @@ func Update_user(c *gin.Context) {
 		},
 	}
 
-	// Return the structured response
+	// Mengembalikan respons yang telah disiapkan
 	c.JSON(http.StatusOK, response)
 }
 
@@ -183,27 +193,27 @@ func Delete_user(c *gin.Context) {
 	var deletedPhotos bool
 	userid := c.Param("userId")
 
+	// Menghapus foto-foto yang terkait dengan pengguna
 	if err := database.DB.Where("userid = ?", userid).First(&photo).Error; err == nil {
 		database.DB.Delete(&models.Photo{}, "userid = ?", userid)
-
 		deletedPhotos = !deletedPhotos
 	}
+
+	// Menghapus pengguna berdasarkan ID
 	if err := database.DB.Where("id = ?", userid).First(&user).Error; err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "record not found"})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Record not found"})
 		return
 	}
 	database.DB.Where("id = ?", userid).Delete(&user)
 
+	// Menyiapkan respons
 	if deletedPhotos {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "successfully deleted photos and account",
+			"message": "Successfully deleted photos and account",
 		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "successfully deleted",
+		"message": "Successfully deleted",
 	})
-
 }
-
-

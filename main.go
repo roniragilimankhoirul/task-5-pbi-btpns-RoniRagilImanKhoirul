@@ -33,13 +33,17 @@ func main() {
 	// Route untuk endpoint penghapusan data pengguna
 	r.DELETE("/users/:userId", middleware.Require_Auth, controllers.Delete_user)
 
-
-
+	// Route untuk endpoint penambahan data foto
 	r.POST("/photos", middleware.Require_Auth, controllers.Create_photo)
-	r.GET("/photos", middleware.Require_Auth, controllers.Show_photo)
-	r.PUT("/photos/:photoId", middleware.Require_Auth, controllers.Update_photo)
-	r.DELETE("/photos/:photoId", middleware.Require_Auth, controllers.Delete_photo)
 
+	// Route untuk endpoint menampilkan data foto
+	r.GET("/photos", middleware.Require_Auth, controllers.Show_photo)
+
+	// Route untuk endpoint pembaruan data foto
+	r.PUT("/photos/:photoId", middleware.Require_Auth, controllers.Update_photo)
+
+	// Route untuk endpoint penghapusan data foto
+	r.DELETE("/photos/:photoId", middleware.Require_Auth, controllers.Delete_photo)
 
 	// Menjalankan server web
 	r.Run()

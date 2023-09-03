@@ -10,6 +10,7 @@ import (
 	models "task-5-pbi-btpns-RoniRagilImanKhoirul/models"
 )
 
+// Create_photo adalah fungsi untuk membuat foto baru.
 func Create_photo(c *gin.Context) {
 	var photo models.Photo
 	photo.Id = uuid.New().String()
@@ -21,7 +22,7 @@ func Create_photo(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&photo); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"messsage": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -30,10 +31,9 @@ func Create_photo(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": photo})
-
 }
 
-
+// Show_photo adalah fungsi untuk menampilkan daftar foto pengguna.
 func Show_photo(c *gin.Context) {
 	var photos []models.Photo
 	userid, _ := c.Get("userid")
@@ -42,6 +42,7 @@ func Show_photo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": photos})
 }
 
+// Update_photo adalah fungsi untuk memperbarui data foto.
 func Update_photo(c *gin.Context) {
 	var photo models.Photo
 	photo.Id = c.Param("photoId")
@@ -56,22 +57,22 @@ func Update_photo(c *gin.Context) {
 		return
 	}
 
-	// Perform the update operation
+	// Melakukan operasi pembaruan
 	result := database.DB.Model(&photo).Where("userid = ?", photo.Userid).Updates(&photo)
 
-	// Check if the update was successful
+	// Memeriksa apakah pembaruan berhasil
 	if result.RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Not found"})
 		return
 	}
 
-	// Fetch the updated photo data from the database
+	// Mengambil data foto yang diperbarui dari database
 	database.DB.First(&photo, "id = ?", photo.Id)
 
 	c.JSON(http.StatusOK, gin.H{"message": "data has been updated", "data": photo})
 }
 
-
+// Delete_photo adalah fungsi untuk menghapus foto.
 func Delete_photo(c *gin.Context) {
 	var photo models.Photo
 	photo.Id = c.Param("photoId")
