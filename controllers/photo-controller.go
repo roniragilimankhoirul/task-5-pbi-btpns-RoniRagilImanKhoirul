@@ -41,3 +41,32 @@ func Show_photo(c *gin.Context) {
 	database.DB.Where("userid = ?", userid).Find(&photos)
 	c.JSON(http.StatusOK, gin.H{"data": photos})
 }
+
+func Update_photo(c *gin.Context) {
+	var photo models.Photo
+	photo.Id = c.Param("photoId")
+	userid, _ := c.Get("userid")
+	photo.Userid = userid.(string)
+
+	if err := helpers.Validation(c, photo); err != nil {
+		return
+	}
+	if err := c.ShouldBindJSON(&photo); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	// Perform the update operation
+	result := database.DB.Model(&photo).Where("userid = ?", photo.Userid).Updates(&photo)
+
+	// Check if the update was successful
+	if result.RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Not found"})
+		return
+	}
+
+	// Fetch the updated photo data from the database
+	database.DB.First(&photo, "id = ?", photo.Id)
+
+	c.JSON(http.StatusOK, gin.H{"message": "data has been updated", "data": photo})
+}
