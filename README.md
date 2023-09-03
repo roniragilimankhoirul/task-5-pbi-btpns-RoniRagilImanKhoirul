@@ -6,6 +6,7 @@ This repository showcases my final project for the Fullstack Developer Virtual I
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Authentication](#authentication)
 
 ## Installation
 
@@ -21,21 +22,22 @@ git clone https://github.com/roniragilimankhoirul/task-5-pbi-btpns-RoniRagilIman
 cd task-5-pbi-btpns-RoniRagilImanKhoirul
 ```
 
-3. Change Database (PostgreeSql) Configuration in database.go:
+3. Set Up Environment Variables:
+
+Create a .env file in the project root and configure your environment variables.
 
 ```
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "password"
-	dbname   = "rakamin" )
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=password
+DB_NAME=rakamin
 ```
 
 4. Install dependencies:
 
 ```shell
-go get -u
+go mod tidy
 ```
 
 3. Start the server:
@@ -262,3 +264,9 @@ The application should now be running on http://localhost:8080.
       "message": "Deleted successfully"
     }
     ```
+
+## Authentication
+
+- User registration and login endpoints do not require authentication.
+
+- All other endpoints require authentication via the `Authorization` header with the JWT token obtained during login.
