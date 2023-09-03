@@ -47,13 +47,20 @@ func Check_password(pass_1 string, pass_2 string) error {
 	return err
 }
 
-// Initialize_token adalah fungsi untuk menginisialisasi token JWT dengan ID pengguna.
-// Ini mengembalikan token yang ditandatangani dan error jika terjadi kesalahan.
+// Initialize_token adalah fungsi untuk menginisialisasi token JWT dengan ID pengguna
+// dan mengatur waktu kedaluwarsa menjadi 1 hari (24 jam).
 func Initialize_token(userid string) (string, error) {
+	// Mengatur waktu kedaluwarsa menjadi 1 hari (24 jam).
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	// Membuat token JWT dengan ID pengguna dan waktu kedaluwarsa baru.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": userid,
-		"exp": time.Now().Add(time.Minute * 1).Unix(),
+		"exp": expirationTime.Unix(),
 	})
+
+	// Menandatangani token dengan kunci rahasia.
 	tokenStr, err := token.SignedString([]byte(SECRET))
 	return tokenStr, err
 }
+
